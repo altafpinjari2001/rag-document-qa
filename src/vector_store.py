@@ -34,9 +34,7 @@ class VectorStoreManager:
         Path(persist_directory).mkdir(parents=True, exist_ok=True)
 
         # Initialize ChromaDB client
-        self.client = chromadb.PersistentClient(
-            path=persist_directory
-        )
+        self.client = chromadb.PersistentClient(path=persist_directory)
 
         # Initialize LangChain Chroma wrapper
         self.vectorstore = Chroma(
@@ -73,13 +71,10 @@ class VectorStoreManager:
             ids = self.vectorstore.add_documents(batch)
             all_ids.extend(ids)
             logger.info(
-                f"Added batch {i // batch_size + 1} "
-                f"({len(batch)} documents)"
+                f"Added batch {i // batch_size + 1} " f"({len(batch)} documents)"
             )
 
-        logger.info(
-            f"Total {len(all_ids)} documents added to vector store"
-        )
+        logger.info(f"Total {len(all_ids)} documents added to vector store")
         return all_ids
 
     def similarity_search(
@@ -99,21 +94,14 @@ class VectorStoreManager:
         Returns:
             List of (Document, score) tuples, sorted by relevance.
         """
-        results = self.vectorstore.similarity_search_with_relevance_scores(
-            query, k=k
-        )
+        results = self.vectorstore.similarity_search_with_relevance_scores(query, k=k)
 
         if score_threshold:
             results = [
-                (doc, score)
-                for doc, score in results
-                if score >= score_threshold
+                (doc, score) for doc, score in results if score >= score_threshold
             ]
 
-        logger.info(
-            f"Found {len(results)} results for query: "
-            f"'{query[:50]}...'"
-        )
+        logger.info(f"Found {len(results)} results for query: " f"'{query[:50]}...'")
         return results
 
     def get_retriever(self, search_kwargs: Optional[dict] = None):
