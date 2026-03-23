@@ -36,5 +36,7 @@ jobs:
 
       - name: Run tests
         env:
-                    PYTHONPATH: ${{ github.workspace }}`n        run: |
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
           pytest tests/ -v --tb=short
