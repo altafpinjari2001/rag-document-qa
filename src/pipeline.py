@@ -61,9 +61,7 @@ class RAGPipeline:
 
         self.vector_store = VectorStoreManager(
             embedding_manager=self.embedding_manager,
-            persist_directory=(
-                persist_directory or settings.chroma_persist_dir
-            ),
+            persist_directory=(persist_directory or settings.chroma_persist_dir),
         )
 
         self.generator = ResponseGenerator(
@@ -79,9 +77,7 @@ class RAGPipeline:
 
         logger.info("RAGPipeline initialized successfully")
 
-    def ingest(
-        self, file_path: str | Path
-    ) -> dict[str, int]:
+    def ingest(self, file_path: str | Path) -> dict[str, int]:
         """
         Ingest a document into the RAG pipeline.
 
@@ -116,9 +112,7 @@ class RAGPipeline:
         logger.info(f"Ingestion complete: {stats}")
         return stats
 
-    def ingest_multiple(
-        self, file_paths: list[str | Path]
-    ) -> dict[str, int]:
+    def ingest_multiple(self, file_paths: list[str | Path]) -> dict[str, int]:
         """Ingest multiple documents."""
         total_chunks = 0
         for path in file_paths:
@@ -156,9 +150,7 @@ class RAGPipeline:
             retrieved_documents=retrieved_docs,
         )
 
-        logger.info(
-            f"Query answered. Sources: {len(response.sources)}"
-        )
+        logger.info(f"Query answered. Sources: {len(response.sources)}")
         return response
 
     def clear(self) -> None:
