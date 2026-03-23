@@ -11,7 +11,6 @@ from pathlib import Path
 import streamlit as st
 
 from src.pipeline import RAGPipeline
-from src.config import SUPPORTED_EXTENSIONS
 
 
 # ── Page Configuration ──────────────────────────────────────────
@@ -23,7 +22,8 @@ st.set_page_config(
 )
 
 # ── Custom Styling ──────────────────────────────────────────────
-st.markdown("""
+st.markdown(
+    """
 <style>
     .main-header {
         font-size: 2.5rem;
@@ -45,7 +45,9 @@ st.markdown("""
         border-left: 3px solid #667eea;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
 # ── Session State ───────────────────────────────────────────────
@@ -84,18 +86,10 @@ with st.sidebar:
 
     # Pipeline settings
     with st.expander("🔧 Advanced Settings"):
-        chunk_size = st.slider(
-            "Chunk Size", 200, 2000, 1000, 100
-        )
-        chunk_overlap = st.slider(
-            "Chunk Overlap", 0, 500, 200, 50
-        )
-        top_k = st.slider(
-            "Top K Results", 1, 10, 5
-        )
-        use_hybrid = st.checkbox(
-            "Hybrid Search (BM25 + Semantic)", value=True
-        )
+        chunk_size = st.slider("Chunk Size", 200, 2000, 1000, 100)
+        chunk_overlap = st.slider("Chunk Overlap", 0, 500, 200, 50)
+        top_k = st.slider("Top K Results", 1, 10, 5)
+        use_hybrid = st.checkbox("Hybrid Search (BM25 + Semantic)", value=True)
 
     # Process button
     if st.button("🚀 Process Documents", type="primary"):
@@ -126,21 +120,14 @@ with st.sidebar:
                         stats = pipeline.ingest(tmp.name)
 
                 st.session_state.pipeline = pipeline
-                st.session_state.documents_loaded = len(
-                    uploaded_files
-                )
+                st.session_state.documents_loaded = len(uploaded_files)
 
-            st.success(
-                f"✅ Processed {len(uploaded_files)} document(s)!"
-            )
+            st.success(f"✅ Processed {len(uploaded_files)} document(s)!")
 
     # Status
     if st.session_state.documents_loaded > 0:
         st.markdown("---")
-        st.success(
-            f"📚 {st.session_state.documents_loaded} "
-            f"document(s) loaded"
-        )
+        st.success(f"📚 {st.session_state.documents_loaded} " f"document(s) loaded")
 
 
 # ── Main Content ────────────────────────────────────────────────
@@ -173,15 +160,10 @@ for message in st.session_state.messages:
 # Chat input
 if prompt := st.chat_input("Ask a question about your documents"):
     if not st.session_state.pipeline:
-        st.error(
-            "⚠️ Please upload and process documents first "
-            "(use the sidebar)"
-        )
+        st.error("⚠️ Please upload and process documents first " "(use the sidebar)")
     else:
         # Add user message
-        st.session_state.messages.append(
-            {"role": "user", "content": prompt}
-        )
+        st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
@@ -203,8 +185,10 @@ if prompt := st.chat_input("Ask a question about your documents"):
                             )
 
         # Save to history
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": response.answer,
-            "sources": response.sources,
-        })
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": response.answer,
+                "sources": response.sources,
+            }
+        )
