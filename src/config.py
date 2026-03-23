@@ -4,7 +4,6 @@ RAG Document Q&A System - Configuration Module.
 Centralized configuration management using pydantic-settings.
 """
 
-import os
 from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import Field
@@ -40,9 +39,7 @@ class Settings(BaseSettings):
     chroma_persist_dir: str = Field(
         default="./data/chroma_db", env="CHROMA_PERSIST_DIR"
     )
-    collection_name: str = Field(
-        default="documents", env="COLLECTION_NAME"
-    )
+    collection_name: str = Field(default="documents", env="COLLECTION_NAME")
 
     # Application
     upload_dir: str = Field(default="./data/uploads", env="UPLOAD_DIR")
