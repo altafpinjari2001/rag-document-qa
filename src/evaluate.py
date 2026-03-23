@@ -7,7 +7,6 @@ Evaluates RAG pipeline quality using custom metrics.
 import json
 import logging
 from dataclasses import dataclass
-from pathlib import Path
 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -56,47 +55,31 @@ class RAGEvaluator:
         eval_model: str = "gpt-4o-mini",
     ):
         self.pipeline = pipeline
-        self.eval_llm = ChatOpenAI(
-            model=eval_model, temperature=0.0
-        )
+        self.eval_llm = ChatOpenAI(model=eval_model, temperature=0.0)
 
-    def _score_faithfulness(
-        self, context: str, answer: str
-    ) -> float:
+    def _score_faithfulness(self, context: str, answer: str) -> float:
         """Score the faithfulness of answer to context."""
-        prompt = ChatPromptTemplate.from_template(
-            FAITHFULNESS_PROMPT
-        )
+        prompt = ChatPromptTemplate.from_template(FAITHFULNESS_PROMPT)
         chain = prompt | self.eval_llm
-        response = chain.invoke({
-            "context": context, "answer": answer
-        })
+        response = chain.invoke({"context": context, "answer": answer})
         try:
             result = json.loads(response.content)
             return float(result["score"])
         except (json.JSONDecodeError, KeyError):
             return 0.0
 
-    def _score_relevancy(
-        self, question: str, answer: str
-    ) -> float:
+    def _score_relevancy(self, question: str, answer: str) -> float:
         """Score the relevancy of answer to question."""
-        prompt = ChatPromptTemplate.from_template(
-            RELEVANCY_PROMPT
-        )
+        prompt = ChatPromptTemplate.from_template(RELEVANCY_PROMPT)
         chain = prompt | self.eval_llm
-        response = chain.invoke({
-            "question": question, "answer": answer
-        })
+        response = chain.invoke({"question": question, "answer": answer})
         try:
             result = json.loads(response.content)
             return float(result["score"])
         except (json.JSONDecodeError, KeyError):
             return 0.0
 
-    def evaluate(
-        self, test_dataset_path: str
-    ) -> list[EvalResult]:
+    def evaluate(self, test_dataset_path: str) -> list[EvalResult]:
         """
         Run evaluation on a test dataset.
 
@@ -120,12 +103,8 @@ class RAGEvaluator:
             context = "\n".join(response.context_chunks)
 
             # Compute metrics
-            faithfulness = self._score_faithfulness(
-                context, response.answer
-            )
-            relevancy = self._score_relevancy(
-                question, response.answer
-            )
+            faithfulness = self._score_faithfulness(context, response.answer)
+            relevancy = self._score_relevancy(question, response.answer)
 
             result = EvalResult(
                 question=question,
@@ -153,16 +132,8 @@ class RAGEvaluator:
 
         return {
             "num_questions": n,
-            "avg_faithfulness": sum(
-                r.faithfulness for r in results
-            ) / n,
-            "avg_answer_relevancy": sum(
-                r.answer_relevancy for r in results
-            ) / n,
-            "avg_context_precision": sum(
-                r.context_precision for r in results
-            ) / n,
-            "avg_context_recall": sum(
-                r.context_recall for r in results
-            ) / n,
+            "avg_faithfulness": sum(r.faithfulness for r in results) / n,
+            "avg_answer_relevancy": sum(r.answer_relevancy for r in results) / n,
+            "avg_context_precision": sum(r.context_precision for r in results) / n,
+            "avg_context_recall": sum(r.context_recall for r in results) / n,
         }
