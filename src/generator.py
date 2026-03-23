@@ -64,10 +64,12 @@ class ResponseGenerator:
             streaming=streaming,
         )
 
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", RAG_SYSTEM_PROMPT),
-            ("human", RAG_USER_PROMPT),
-        ])
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", RAG_SYSTEM_PROMPT),
+                ("human", RAG_USER_PROMPT),
+            ]
+        )
 
         self.chain = self.prompt | self.llm
 
@@ -83,14 +85,11 @@ class ResponseGenerator:
             source = doc.metadata.get("source_file", "Unknown")
             page = doc.metadata.get("page", "N/A")
             context_parts.append(
-                f"[Source {i}: {source}, Page {page}]\n"
-                f"{doc.page_content}"
+                f"[Source {i}: {source}, Page {page}]\n" f"{doc.page_content}"
             )
         return "\n\n".join(context_parts)
 
-    def _extract_sources(
-        self, documents: list[Document]
-    ) -> list[dict]:
+    def _extract_sources(self, documents: list[Document]) -> list[dict]:
         """Extract source metadata from documents."""
         sources = []
         seen = set()
@@ -102,13 +101,13 @@ class ResponseGenerator:
 
             if key not in seen:
                 seen.add(key)
-                sources.append({
-                    "file": source_file,
-                    "page": page,
-                    "chunk_index": doc.metadata.get(
-                        "chunk_index", -1
-                    ),
-                })
+                sources.append(
+                    {
+                        "file": source_file,
+                        "page": page,
+                        "chunk_index": doc.metadata.get("chunk_index", -1),
+                    }
+                )
         return sources
 
     def generate(
@@ -136,17 +135,17 @@ class ResponseGenerator:
 
         context = self._format_context(retrieved_documents)
 
-        response = self.chain.invoke({
-            "context": context,
-            "question": question,
-        })
+        response = self.chain.invoke(
+            {
+                "context": context,
+                "question": question,
+            }
+        )
 
         return RAGResponse(
             answer=response.content,
             sources=self._extract_sources(retrieved_documents),
-            context_chunks=[
-                doc.page_content for doc in retrieved_documents
-            ],
+            context_chunks=[doc.page_content for doc in retrieved_documents],
             model=self.model_name,
             usage=response.response_metadata.get("token_usage"),
         )
@@ -159,9 +158,11 @@ class ResponseGenerator:
         """Stream the response token by token."""
         context = self._format_context(retrieved_documents)
 
-        async for chunk in self.chain.astream({
-            "context": context,
-            "question": question,
-        }):
+        async for chunk in self.chain.astream(
+            {
+                "context": context,
+                "question": question,
+            }
+        ):
             if chunk.content:
                 yield chunk.content
