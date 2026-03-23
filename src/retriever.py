@@ -36,22 +36,17 @@ class HybridRetriever:
         self.use_hybrid = use_hybrid
 
         # Semantic retriever (dense)
-        self.semantic_retriever = vector_store.get_retriever(
-            search_kwargs={"k": top_k}
-        )
+        self.semantic_retriever = vector_store.get_retriever(search_kwargs={"k": top_k})
 
         # BM25 retriever (sparse) — if hybrid mode is enabled
         self.bm25_retriever = None
         self.ensemble_retriever = None
 
         if use_hybrid and documents:
-            self._setup_hybrid(
-                documents, semantic_weight, bm25_weight
-            )
+            self._setup_hybrid(documents, semantic_weight, bm25_weight)
 
         logger.info(
-            f"HybridRetriever initialized "
-            f"(hybrid={use_hybrid}, top_k={top_k})"
+            f"HybridRetriever initialized " f"(hybrid={use_hybrid}, top_k={top_k})"
         )
 
     def _setup_hybrid(
@@ -61,9 +56,7 @@ class HybridRetriever:
         bm25_weight: float,
     ) -> None:
         """Initialize BM25 retriever and ensemble."""
-        self.bm25_retriever = BM25Retriever.from_documents(
-            documents, k=self.top_k
-        )
+        self.bm25_retriever = BM25Retriever.from_documents(documents, k=self.top_k)
 
         self.ensemble_retriever = EnsembleRetriever(
             retrievers=[
@@ -95,16 +88,9 @@ class HybridRetriever:
         else:
             results = self.semantic_retriever.invoke(query)
 
-        logger.info(
-            f"Retrieved {len(results)} documents for: "
-            f"'{query[:50]}...'"
-        )
+        logger.info(f"Retrieved {len(results)} documents for: " f"'{query[:50]}...'")
         return results[: self.top_k]
 
-    def retrieve_with_scores(
-        self, query: str
-    ) -> list[tuple[Document, float]]:
+    def retrieve_with_scores(self, query: str) -> list[tuple[Document, float]]:
         """Retrieve documents with relevance scores."""
-        return self.vector_store.similarity_search(
-            query, k=self.top_k
-        )
+        return self.vector_store.similarity_search(query, k=self.top_k)
