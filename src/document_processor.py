@@ -71,8 +71,7 @@ class DocumentProcessor:
         ext = path.suffix.lower()
         if ext not in SUPPORTED_EXTENSIONS:
             raise ValueError(
-                f"Unsupported file type: {ext}. "
-                f"Supported: {SUPPORTED_EXTENSIONS}"
+                f"Unsupported file type: {ext}. " f"Supported: {SUPPORTED_EXTENSIONS}"
             )
 
         loader_cls = self.LOADER_MAP[ext]
@@ -83,20 +82,18 @@ class DocumentProcessor:
 
         # Enrich metadata
         for doc in documents:
-            doc.metadata.update({
-                "source_file": path.name,
-                "file_type": ext,
-                "file_size_bytes": path.stat().st_size,
-            })
+            doc.metadata.update(
+                {
+                    "source_file": path.name,
+                    "file_type": ext,
+                    "file_size_bytes": path.stat().st_size,
+                }
+            )
 
-        logger.info(
-            f"Loaded {len(documents)} page(s) from {path.name}"
-        )
+        logger.info(f"Loaded {len(documents)} page(s) from {path.name}")
         return documents
 
-    def split_documents(
-        self, documents: list[Document]
-    ) -> list[Document]:
+    def split_documents(self, documents: list[Document]) -> list[Document]:
         """
         Split documents into smaller chunks for embedding.
 
@@ -113,10 +110,7 @@ class DocumentProcessor:
             chunk.metadata["chunk_index"] = i
             chunk.metadata["total_chunks"] = len(chunks)
 
-        logger.info(
-            f"Split {len(documents)} document(s) into "
-            f"{len(chunks)} chunks"
-        )
+        logger.info(f"Split {len(documents)} document(s) into " f"{len(chunks)} chunks")
         return chunks
 
     def process(self, file_path: str | Path) -> list[Document]:
@@ -133,9 +127,7 @@ class DocumentProcessor:
         chunks = self.split_documents(documents)
         return chunks
 
-    def process_multiple(
-        self, file_paths: list[str | Path]
-    ) -> list[Document]:
+    def process_multiple(self, file_paths: list[str | Path]) -> list[Document]:
         """Process multiple documents and return combined chunks."""
         all_chunks = []
         for path in file_paths:
@@ -147,7 +139,6 @@ class DocumentProcessor:
                 continue
 
         logger.info(
-            f"Processed {len(file_paths)} files → "
-            f"{len(all_chunks)} total chunks"
+            f"Processed {len(file_paths)} files → " f"{len(all_chunks)} total chunks"
         )
         return all_chunks
